@@ -1,0 +1,87 @@
+{
+  "nav": {
+    "about": "Sobre",
+    "services": "Servicios",
+    "portfolio": "Portafolio",
+    "contacts": "Contactos"
+  },
+  "hero": {
+    "logoAlt": "Logotipo de Pyro Entertainment"
+  },
+  "about": {
+    "title": "Sobre nosotros",
+    "lead": "Pyro Entertainment & SFX. Almacén en Oporto y Algarve. Pirotecnia y efectos especiales con foco en impacto y seguridad.",
+    "foot": "Trabajamos en todo el país."
+  },
+  "services": {
+    "title": "Servicios",
+    "cta": "Ver más",
+    "disclaimer": "Ejecución sujeta a licencias locales y condiciones de seguridad.",
+    "pyroTitle": "Espectáculos Pirotécnicos",
+    "piromusicalTitle": "Espectáculos Piromusicales",
+    "sfxTitle": "Efectos Especiales de Escenario (SFX)",
+    "pyroDesc": "Espectáculos de fuegos artificiales para festivales, eventos al aire libre y ocasiones especiales.",
+    "piromusicalDesc": "Efectos pirotécnicos sincronizados con música.",
+    "sfxDesc": "Llamas, chispas frías, niebla y chorros de CO₂."
+  },
+  "contacts": {
+    "title": "Contactos",
+    "lead": "Para presupuestos o dudas técnicas, usa los contactos de abajo. Respondemos rápido.",
+    "email": "Correo electrónico",
+    "phone": "Teléfono",
+    "location": "Ubicación",
+    "instagram": "Instagram",
+    "facebook": "Facebook",
+    "linkedin": "LinkedIn",
+    "copy": "Copiar",
+    "aria": {
+      "mailto": "Enviar correo a {{email}}",
+      "tel": "Llamar a {{phone}}",
+      "ig": "Visitar Instagram",
+      "fb": "Visitar Facebook",
+      "li": "Visitar LinkedIn",
+      "copyEmail": "Copiar correo",
+      "copyPhone": "Copiar teléfono"
+    }
+  },
+  "portfolio": {
+    "title": "Portafolio",
+    "lead": "Trabajos recientes en pirotecnia y SFX — fotos y vídeos reales al hacer clic.",
+    "preview": "Previsualizar",
+    "seeAll": "Ver todos",
+    "empty": "Sin proyectos en este servicio… por ahora.",
+    "filters": {
+      "all": "Todo",
+      "sfx": {
+        "co2": "CO2",
+        "lasers": "Láseres",
+        "bubbles": "Burbujas",
+        "chamas": "Llamas",
+        "confetti": "Confeti"
+      }
+    },
+    "modal": {
+      "prev": "Anterior",
+      "next": "Siguiente",
+      "goto": "Ir al medio {{n}}",
+      "close": "Cerrar"
+    }
+  },
+  "tags": {
+   "fireworks": "Fuegos artificiales",
+    "co2": "CO2",
+    "flames": "Llamas",
+    "lasers": "Láseres",
+    "bubbles": "Burbujas",
+    "confetti": "Confeti/Streamers"
+  },
+   "navbar": {
+    "about": "Sobre mí",
+    "services": "Servicios",
+    "portfolio": "Portafolio",
+    "contacts": "Contactos",
+    "openMenu": "Abrir menú",
+    "closeMenu": "Cerrar menú"
+  }
+
+}

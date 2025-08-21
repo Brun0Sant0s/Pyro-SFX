@@ -1,0 +1,86 @@
+{
+  "nav": {
+    "about": "Sobre",
+    "services": "Serviços",
+    "portfolio": "Portfólio",
+    "contacts": "Contactos"
+  },
+  "hero": {
+    "logoAlt": "Logótipo Pyro Entertainment"
+  },
+  "about": {
+    "title": "Sobre nós",
+    "lead": "Pyro Entertainment & SFX. Armazém no Porto e Algarve. Pirotecnia e efeitos especiais com foco em impacto e segurança.",
+    "foot": "Trabalhamos em todo o país."
+  },
+  "services": {
+    "title": "Serviços",
+    "cta": "Ver mais",
+    "disclaimer": "Execução sujeita a licenciamento local e condições de segurança.",
+    "pyroTitle": "Pirotecnia",
+    "piromusicalTitle": "Espetáculos Piromusicais",
+    "sfxTitle": "Efeitos Especiais",
+    "pyroDesc": "Shows de fogo de artifício para festivais, open-air e eventos especiais.",
+    "piromusicalDesc": "Sincronização musical com explosões e efeitos pirotécnicos.",
+    "sfxDesc": "Chamas, faíscas frias, nevoeiro e jatos de CO₂."
+  },
+  "contacts": {
+    "title": "Contactos",
+    "lead": "Para pedidos de orçamento ou questões técnicas, usa os contactos abaixo. Respondemos rápido.",
+    "email": "E-mail",
+    "phone": "Telefone",
+    "location": "Localização",
+    "instagram": "Instagram",
+    "facebook": "Facebook",
+    "linkedin": "LinkedIn",
+    "copy": "Copiar",
+    "aria": {
+      "mailto": "Enviar e-mail para {{email}}",
+      "tel": "Ligar para {{phone}}",
+      "ig": "Visitar Instagram",
+      "fb": "Visitar Facebook",
+      "li": "Visitar LinkedIn",
+      "copyEmail": "Copiar e-mail",
+      "copyPhone": "Copiar telefone"
+    }
+  },
+  "portfolio": {
+    "title": "Portfólio",
+    "lead": "Trabalhos recentes em pirotecnia e SFX — fotos e vídeos reais ao clicar.",
+    "preview": "Pré-visualizar",
+    "seeAll": "Ver todos",
+    "empty": "Sem projetos neste serviço… por agora.",
+    "filters": {
+      "all": "Tudo",
+      "sfx": {
+        "co2": "CO2",
+        "lasers": "Lasers",
+        "bubbles": "Bolhas",
+        "chamas": "Chamas",
+        "confetti": "Confetti"
+      }
+    },
+    "modal": {
+      "prev": "Anterior",
+      "next": "Seguinte",
+      "goto": "Ir para media {{n}}",
+      "close": "Fechar"
+    }
+  },
+  "tags": {
+   "fireworks": "Fogo de artifício",
+    "co2": "CO2",
+    "flames": "Chamas",
+    "lasers": "Lasers",
+    "bubbles": "Bolhas",
+    "confetti": "Confettis/Streamers"
+  },
+  "navbar": {
+    "about": "Sobre",
+    "services": "Serviços",
+    "portfolio": "Portfólio",
+    "contacts": "Contactos",
+    "openMenu": "Abrir menu",
+    "closeMenu": "Fechar menu" 
+ }
+}

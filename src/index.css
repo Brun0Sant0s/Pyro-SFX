@@ -1,0 +1,44 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* =========================
+   Scrollbar minimal (global)
+   ========================= */
+:root{
+  --sb-thumb: rgba(255,255,255,.22);
+  --sb-thumb-hover: rgba(255,255,255,.35);
+}
+
+/* Firefox */
+*{
+  scrollbar-width: thin;
+  scrollbar-color: var(--sb-thumb) transparent;
+}
+
+/* WebKit (Chrome/Edge/Safari) */
+*::-webkit-scrollbar{ width: 8px; height: 8px; }
+*::-webkit-scrollbar-track{ background: transparent; }
+*::-webkit-scrollbar-thumb{
+  background: var(--sb-thumb);
+  border-radius: 999px;
+  border: 2px solid transparent; /* folga interna */
+  background-clip: content-box;
+}
+*::-webkit-scrollbar-thumb:hover{ background: var(--sb-thumb-hover); }
+
+/* Mostrar o polegar só quando o body está em hover (opcional) */
+body::-webkit-scrollbar-thumb{ background: transparent; }
+body:hover::-webkit-scrollbar-thumb{ background: var(--sb-thumb); }
+
+/* =========================
+   Tipografia: Bebas Neue nos títulos
+   ========================= */
+
+/* (opcional) util para esconder totalmente a scrollbar onde precisares */
+@layer utilities{
+  .scroll-none{ -ms-overflow-style: none; scrollbar-width: none; }
+  .scroll-none::-webkit-scrollbar{ display: none; }
+}
+
+/* helvetica neue*/

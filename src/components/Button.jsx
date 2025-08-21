@@ -1,0 +1,1 @@
+export default function Button({children,className='',...props}){return(<button className={`inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2 text-sm font-medium transition border border-white/10 bg-white/10 hover:bg-white/20 text-white ${className}`} {...props}>{children}</button>);}

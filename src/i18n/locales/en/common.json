@@ -1,0 +1,86 @@
+{
+  "nav": {
+    "about": "About",
+    "services": "Services",
+    "portfolio": "Portfolio",
+    "contacts": "Contacts"
+  },
+  "hero": {
+    "logoAlt": "Pyro Entertainment logo"
+  },
+  "about": {
+    "title": "About us",
+    "lead": "Pyro Entertainment & SFX. Warehouse in Porto and Algarve. Pyrotechnics and special effects focused on impact and safety.",
+    "foot": "We work nationwide."
+  },
+  "services": {
+    "title": "Services",
+    "cta": "See more",
+    "disclaimer": "Execution subject to local licensing and safety conditions.",
+    "pyroTitle": "Pyrotechnic Shows",
+    "piromusicalTitle": "Pyromusical Shows",
+    "sfxTitle": "Stage Special Effects (SFX)",
+    "pyroDesc": "Fireworks shows for festivals, open-air events and special occasions.",
+    "piromusicalDesc": "Music-synced pyrotechnic effects.",
+    "sfxDesc": "Flames, cold sparks, fog and CO₂ jets."
+  },
+  "contacts": {
+    "title": "Contacts",
+    "lead": "For quotes or technical questions, use the contacts below. We reply fast.",
+    "email": "Email",
+    "phone": "Phone",
+    "location": "Location",
+    "instagram": "Instagram",
+    "facebook": "Facebook",
+    "linkedin": "LinkedIn",
+    "copy": "Copy",
+    "aria": {
+      "mailto": "Send email to {{email}}",
+      "tel": "Call {{phone}}",
+      "ig": "Visit Instagram",
+      "fb": "Visit Facebook",
+      "li": "Visit LinkedIn",
+      "copyEmail": "Copy email",
+      "copyPhone": "Copy phone"
+    }
+  },
+  "portfolio": {
+    "title": "Portfolio",
+    "lead": "Recent work in pyrotechnics and SFX — real photos and videos when you click.",
+    "preview": "Preview",
+    "seeAll": "See all",
+    "empty": "No projects in this service… for now.",
+    "filters": {
+      "all": "All",
+      "sfx": {
+        "co2": "CO2",
+        "lasers": "Lasers",
+        "bubbles": "Bubbles",
+        "chamas": "Flames",
+        "confetti": "Confetti"
+      }
+    },
+    "modal": {
+      "prev": "Previous",
+      "next": "Next",
+      "goto": "Go to media {{n}}",
+      "close": "Close"
+    }
+  } ,
+  "tags": {
+    "fireworks": "Fireworks",
+    "co2": "CO2",
+    "flames": "Flames",
+    "lasers": "Lasers",
+    "bubbles": "Bubbles",
+    "confetti": "Confetti/Streamers"
+  },
+    "navbar": {
+    "about": "About",
+    "services": "Services",
+    "portfolio": "Portfolio",
+    "contacts": "Contact",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu"
+  }
+}
