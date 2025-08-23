@@ -17,6 +17,18 @@ export default function Navbar({ onToggleMenu, open, activeSection }) {
   const inactive = "text-white/70 hover:text-white";
   const activeText = "text-white";
 
+  // altura da navbar (h-16 = 64px)
+  const NAVBAR_HEIGHT = 64;
+
+  const handleNavClick = (e, id) => {
+    e.preventDefault();
+    const el = document.getElementById(id);
+    if (!el) return;
+    const y = el.getBoundingClientRect().top + window.pageYOffset - NAVBAR_HEIGHT;
+    window.scrollTo({ top: y, behavior: "smooth" });
+    if (open && typeof onToggleMenu === "function") onToggleMenu(); // fecha menu mobile se aberto
+  };
+
   return (
     <div
       id="navbar-root"
@@ -33,11 +45,12 @@ export default function Navbar({ onToggleMenu, open, activeSection }) {
                 href={`#${l.id}`}
                 aria-current={isActive ? "page" : undefined}
                 className={`${base} ${isActive ? activeText : inactive} relative`}
+                onClick={(e) => handleNavClick(e, l.id)}
               >
                 <span className="relative">
                   {l.label}
                   <span
-                    className={`absolute left-0 -bottom-[5px] h-[2px] bg-red-500 transition-all duration-300 ease-out ${
+                    className={`absolute left-0 -bottom-[5px] h-[1px] bg-red-500 transition-all duration-300 ease-out ${
                       isActive ? "w-full" : "w-0 hover:w-full"
                     }`}
                   />

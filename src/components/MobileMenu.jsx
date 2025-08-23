@@ -19,6 +19,20 @@ export default function MobileMenu({ open, onClose, activeSection }) {
   const inactive = "text-white/70 hover:text-white";
   const activeText = "text-white";
 
+  // altura da navbar fixa
+  const NAVBAR_HEIGHT = 64;
+
+  // Função para scroll suave + fechar menu
+  const handleClick = (e, id) => {
+    e.preventDefault();
+    const el = document.getElementById(id);
+    if (el) {
+      const y = el.getBoundingClientRect().top + window.pageYOffset - NAVBAR_HEIGHT;
+      window.scrollTo({ top: y, behavior: "smooth" });
+    }
+    onClose?.();
+  };
+
   // Fecha o menu quando o idioma muda (evita UI inconsistente)
   React.useEffect(() => {
     const handle = () => onClose?.();
@@ -58,14 +72,14 @@ export default function MobileMenu({ open, onClose, activeSection }) {
                   <a
                     key={l.id}
                     href={`#${l.id}`}
-                    onClick={onClose}
+                    onClick={(e) => handleClick(e, l.id)}
                     aria-current={isActive ? "page" : undefined}
                     className={`${base} ${isActive ? activeText : inactive} relative`}
                   >
                     <span className="relative inline-block">
                       {l.label}
                       <span
-                        className={`absolute left-0 -bottom-[5px] h-[2px] bg-red-500 transition-all duration-300 ease-out ${
+                        className={`absolute left-0 -bottom-[5px] h-[1px] bg-red-500 transition-all duration-300 ease-out ${
                           isActive ? "w-full" : "w-0 hover:w-full"
                         }`}
                       />

@@ -1,13 +1,24 @@
-// "use client"
 import { useEffect, useState } from 'react';
 import Navbar from './components/Navbar';
-import MobileMenu from './components/MobileMenu'; // <— FALTAVA
+import MobileMenu from './components/MobileMenu';
 
 import Hero from './sections/Hero';
 import About from './sections/About';
 import Services from './sections/Services';
 import Portfolio from './sections/Portfolio';
 import Contacts from './sections/Contacts';
+
+function SectionDivider() {
+  return (
+    <div className="mx-auto max-w-7xl px-6">
+      <div className="py-40 sm:py-42">
+        <div className="flex items-center gap-4">
+          <span className="h-px flex-1 bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function App() {
   const [activeSection, setActiveSection] = useState(null);
@@ -74,19 +85,48 @@ export default function App() {
         onToggleMenu={() => setMenuOpen((v) => !v)}
       />
 
-      {/* ⬇️ Render do menu mobile */}
-     <MobileMenu
-  open={menuOpen}
-  onClose={() => setMenuOpen(false)}
-  activeSection={activeSection}
-/>
-
+      <MobileMenu
+        open={menuOpen}
+        onClose={() => setMenuOpen(false)}
+        activeSection={activeSection}
+      />
 
       <Hero />
-      <About />
-      <Services />
-      <Portfolio />
-      <Contacts />
+      <div className="mx-auto max-w-7xl px-24">
+        <header className="mb-8">
+          <h2 className="text-3xl sm:text-4xl tracking-tight text-white">Sobre</h2>
+          <span className="block mt-2 h-[1px] w-20 bg-gradient-to-r from-red-500 to-black" />
+        </header>
+        <About />
+      </div>
+
+      <SectionDivider />
+
+      <div className="mx-auto max-w-7xl px-24">
+         <header className="mb-8">
+          <h2 className="text-3xl sm:text-4xl tracking-tight text-white">Serviços</h2>
+          <span className="block mt-2 h-[1px] w-20 bg-gradient-to-r from-red-500 to-black" />
+        </header>
+        <Services />
+      </div>
+      <SectionDivider />
+
+      <div className="mx-auto max-w-7xl px-24">
+         <header className="mb-8">
+          <h2 className="text-3xl sm:text-4xl tracking-tight text-white">Portfólio</h2>
+          <span className="block mt-2 h-[1px] w-20 bg-gradient-to-r from-red-500 to-black" />
+        </header>
+        <Portfolio />
+      </div>
+      <SectionDivider />
+
+      <div className="mx-auto max-w-7xl px-24 pb-24">
+         <header className="mb-8">
+          <h2 className="text-3xl sm:text-4xl tracking-tight text-white">Contacos</h2>
+          <span className="block mt-2 h-[1px] w-20 bg-gradient-to-r from-red-500 to-black" />
+        </header>
+        <Contacts />
+      </div>
     </>
   );
 }

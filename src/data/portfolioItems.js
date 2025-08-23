@@ -12,6 +12,7 @@ export const portfolioItems = [
   {
     id: 1,
     title: "Passagem de ano Porto",
+    description: "Espetáculo de fogo de artifício e piromusical na Ribeira do Porto, para celebrar a entrada no novo ano.",
     services: ["pyro", "piromusical"],
     tag: "fireworks",
     cover: bgPyro,
@@ -23,6 +24,7 @@ export const portfolioItems = [
   {
     id: 2,
     title: "SFX CO2",
+    description: "Efeitos especiais com jatos de CO2 que criam impacto visual em concertos e eventos.",
     services: ["sfx", "co2"],
     tag: "co2",
     cover: bgSfx,
@@ -34,6 +36,7 @@ export const portfolioItems = [
   {
     id: 3,
     title: "SFX Chamas",
+    description: "Efeitos de chamas sincronizadas para momentos de maior intensidade em palcos e festivais.",
     services: ["sfx", "flames"],
     tag: "flames",
     cover: bgSfx,
@@ -45,6 +48,7 @@ export const portfolioItems = [
   {
     id: 4,
     title: "SFX Lasers",
+    description: "Show de lasers para espetáculos e eventos indoor/outdoor com impacto visual único.",
     services: ["sfx", "lasers"],
     tag: "lasers",
     cover: bgSfx,
@@ -53,6 +57,7 @@ export const portfolioItems = [
   {
     id: 5,
     title: "SFX Bubble machines",
+    description: "Máquinas de bolhas criam uma atmosfera mágica e divertida, ideais para eventos familiares.",
     services: ["sfx", "bubbles"],
     tag: "bubbles",
     cover: bgSfx,
@@ -61,6 +66,7 @@ export const portfolioItems = [
   {
     id: 6,
     title: "SFX Confettis/Streamers",
+    description: "Explosões de confetti e streamers para momentos épicos de celebração em eventos e concertos.",
     services: ["sfx", "confetti"],
     tag: "confetti",
     cover: bgSfx,
@@ -69,6 +75,7 @@ export const portfolioItems = [
   {
     id: 7,
     title: "Natal Porto",
+    description: "Espetáculo de fogo de artifício realizado no centro do Porto durante as festividades de Natal.",
     services: ["pyro"],
     tag: "fireworks",
     cover: bgPiromusical,

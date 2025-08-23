@@ -1,9 +1,18 @@
-import React, { useState, useEffect, useMemo, useRef } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { createPortal } from "react-dom";
 import {
-  ChevronRight, ChevronLeft, Sparkles, Wind, Flame, Zap, PartyPopper, Droplets, X as XIcon,
+  ChevronRight,
+  ChevronLeft,
+  Sparkles,
+  Wind,
+  Flame,
+  Zap,
+  PartyPopper,
+  Droplets,
+  X as XIcon,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { motion, AnimatePresence } from "framer-motion";
 
 import bgPyro from "../assets/services_1.png";
 import bgPiromusical from "../assets/services_2.png";
@@ -17,24 +26,58 @@ const TOP = ["all", ...MAIN];
 const MAX = 6;
 
 /* ==== Looks =========================================================== */
-const BG = { pyro: bgPyro, piromusical: bgPiromusical, sfx: bgSfx, flames: bgSfx, co2: bgSfx, lasers: bgSfx, bubbles: bgSfx, confetti: bgSfx };
-const TAG_ICON = { fireworks: Sparkles, co2: Wind, flames: Flame, lasers: Zap, bubbles: Droplets, confetti: PartyPopper };
+const BG = {
+  pyro: bgPyro,
+  piromusical: bgPiromusical,
+  sfx: bgSfx,
+  flames: bgSfx,
+  co2: bgSfx,
+  lasers: bgSfx,
+  bubbles: bgSfx,
+  confetti: bgSfx,
+};
+const TAG_ICON = {
+  fireworks: Sparkles,
+  co2: Wind,
+  flames: Flame,
+  lasers: Zap,
+  bubbles: Droplets,
+  confetti: PartyPopper,
+};
 
-const STYLES = `
-@keyframes fadeIn { from { opacity:0 } to { opacity:1 } }
-@keyframes scaleIn { from { opacity:.96; transform:scale(.995) } to { opacity:1; transform:scale(1) } }
-@media (prefers-reduced-motion: no-preference) {
-  .collapsible { transition: max-height 260ms ease, opacity 220ms ease, margin-top 220ms ease; will-change: max-height, opacity; }
-}
-`;
+const prefersReduced = () =>
+  typeof window !== "undefined" &&
+  window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
 
-/* ==== Helpers UI ====================================================== */
+const navVariants = {
+  initial: (dir = 1) =>
+    prefersReduced() ? { opacity: 0 } : { opacity: 0, x: dir * 20 },
+  animate: {
+    opacity: 1,
+    x: 0,
+    transition: prefersReduced()
+      ? { duration: 0 }
+      : { duration: 0.26, ease: [0.22, 1, 0.36, 1] },
+  },
+  exit: (dir = 1) =>
+    prefersReduced()
+      ? { opacity: 0 }
+      : {
+        opacity: 0,
+        x: dir * -20,
+        transition: { duration: 0.2, ease: [0.4, 0, 1, 1] },
+      },
+};
+
+/* ==== Helpers ====================================================== */
 const Btn = ({ active, children, className = "", ...p }) => (
   <button
     {...p}
     className={
-      `rounded-2xl border transition-colors focus:outline-none focus-visible:ring-1 focus-visible:ring-white/20 ` +
-      (active ? "border-white/20 bg-white/10 text-white " : "border-white/10 bg-white/5 text-white/70 hover:border-white/20 ") +
+      `rounded-xl border transition-colors focus:outline-none focus-visible:ring-1 focus-visible:ring-white/20 ` +
+      (active
+        ? "border-white/20 bg-white/10 text-white "
+        : "border-white/10 bg-white/5 text-white/70 hover:border-white/20 ") +
       className
     }
   >
@@ -44,8 +87,7 @@ const Btn = ({ active, children, className = "", ...p }) => (
 
 const TagIcon = ({ tag }) => {
   const I = TAG_ICON[tag] || Sparkles;
-  return <I className="size-3.5" 
-/>;
+  return <I className="size-3.5" />;
 };
 
 /* ==== Componente ====================================================== */
@@ -79,209 +121,309 @@ export default function Portfolio() {
   const [main, setMain] = useState("all");
   const [sfx, setSfx] = useState("all");
   const [expanded, setExpanded] = useState(false);
-  const [fade, setFade] = useState(false);
 
   const [project, setProject] = useState(null);
   const [idx, setIdx] = useState(0);
-  const tmo = useRef(null);
 
-  const hasServiceId = (services = [], id) => Array.isArray(services) && services.includes(id);
-  const inSfx = (services) => hasServiceId(services, "sfx") || SFX_SUB.slice(1).some((sub) => hasServiceId(services, sub));
+  const hasServiceId = (services = [], id) =>
+    Array.isArray(services) && services.includes(id);
+  const inSfx = (services) =>
+    hasServiceId(services, "sfx") ||
+    SFX_SUB.slice(1).some((sub) => hasServiceId(services, sub));
 
   const filtered = useMemo(() => {
     if (main === "all") return portfolioItems;
-    if (main === "sfx") return portfolioItems.filter((it) => inSfx(it.services) && (sfx === "all" || hasServiceId(it.services, sfx)));
+    if (main === "sfx")
+      return portfolioItems.filter(
+        (it) =>
+          inSfx(it.services) &&
+          (sfx === "all" || hasServiceId(it.services, sfx))
+      );
     return portfolioItems.filter((it) => hasServiceId(it.services, main));
   }, [main, sfx]);
 
-  const visible = useMemo(() => (expanded ? filtered : filtered.slice(0, MAX)), [expanded, filtered]);
+  const visible = useMemo(
+    () => (expanded ? filtered : filtered.slice(0, MAX)),
+    [expanded, filtered]
+  );
   const showSeeAll = !expanded && filtered.length > MAX;
 
-  /* Evento externo (espera receber IDs) */
-  useEffect(() => {
-    const onSet = (e) => {
-      const v = e?.detail;
-      if (typeof v !== "string") return;
-      if (TOP.includes(v)) applyMain(v);
-      else if (SFX_SUB.includes(v)) { applyMain("sfx"); applySfx(v); }
-    };
-    window.addEventListener("portfolio:setFilter", onSet);
-    return () => window.removeEventListener("portfolio:setFilter", onSet);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [main, sfx]);
-
-  useEffect(() => () => clearTimeout(tmo.current), []);
-
-  const scrollTop = () => document.getElementById("portfolio")?.scrollIntoView({ behavior: "smooth", block: "start" });
-  const microFade = (fn) => { setFade(true); clearTimeout(tmo.current); tmo.current = setTimeout(() => { fn(); requestAnimationFrame(() => setFade(false)); }, 160); };
-
-  const applyMain = (nextId) => {
-    const target = TOP.includes(nextId) ? nextId : "all";
-    if (target === main) return scrollTop();
-    microFade(() => { setMain(target); if (target === "sfx") setSfx("all"); setExpanded(false); });
-    scrollTop();
+  const open = (p, i = 0) => {
+    setProject(p);
+    setIdx(i);
+    document.body.style.overflow = "hidden";
   };
-
-  const applySfx = (nextId) => {
-    const target = SFX_SUB.includes(nextId) ? nextId : "all";
-    if (target === sfx) return scrollTop();
-    microFade(() => { setSfx(target); setExpanded(false); });
-    scrollTop();
+  const close = () => {
+    setProject(null);
+    setIdx(0);
+    document.body.style.overflow = "";
   };
-
-  /* Modal */
-  const open = (p, i = 0) => { setProject(p); setIdx(i); document.body.style.overflow = "hidden"; };
-  const close = () => { setProject(null); setIdx(0); document.body.style.overflow = ""; };
   const next = () => setIdx((i) => (i + 1) % (project?.media?.length || 1));
-  const prev = () => setIdx((i) => (i - 1 + (project?.media?.length || 1)) % (project?.media?.length || 1));
+  const prev = () =>
+    setIdx(
+      (i) => (i - 1 + (project?.media?.length || 1)) % (project?.media?.length || 1)
+    );
   const media = project?.media?.[idx];
 
+  const primaryId = (services = []) => {
+    for (const id of [...MAIN, ...SFX_SUB.slice(1)])
+      if (hasServiceId(services, id)) return id;
+    return "pyro";
+  };
+
+  // atalhos de teclado no modal
   useEffect(() => {
     if (!project) return;
-    const onKey = (e) => { if (e.key === "Escape") close(); if (e.key === "ArrowRight") next(); if (e.key === "ArrowLeft") prev(); };
+    const onKey = (e) => {
+      if (e.key === "Escape") close();
+      if (e.key === "ArrowRight") next();
+      if (e.key === "ArrowLeft") prev();
+    };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [project, idx]);
 
-  const primaryId = (services = []) => {
-    for (const id of [...MAIN, ...SFX_SUB.slice(1)]) if (hasServiceId(services, id)) return id;
-    return "pyro";
-  };
-
   return (
-    <section id="portfolio" className="relative isolate text-white scroll-mt-16 min-h-[54svh]" aria-labelledby="portfolio-title">
-      <style>{STYLES}</style>
-
-      <div className="mx-auto max-w-7xl px-6 py-24 sm:py-28">
-        <header className="text-center">
-          <h2 id="portfolio-title" className="text-3xl sm:text-4xl tracking-tight">{t("portfolio.title")}</h2>
-          <p className="mx-auto mt-12 max-w-2xl text-white/75">{t("portfolio.lead")}</p>
-        </header>
+    <section id="portfolio" className="relative isolate text-white scroll-mt-16">
+      <div className="max-w-7xl mx-auto">
+       
 
         {/* Filtros principais */}
-        <div className="mt-6 flex flex-wrap justify-center gap-2">
+        <div className="flex flex-wrap gap-2 mb-6">
           {TOP.map((f) => (
-            <Btn key={f} active={main === f} onClick={() => applyMain(f)} className="px-3 py-1.5 text-sm">
+            <Btn
+              key={f}
+              active={main === f}
+              onClick={() => setMain(f)}
+              className="px-3 py-1.5 text-sm"
+            >
               {LABEL[f] ?? f}
             </Btn>
           ))}
         </div>
 
         {/* Subfiltros SFX */}
-        <div className={`collapsible overflow-hidden ${main === "sfx" ? "mt-3 max-h-24 opacity-100" : "mt-0 max-h-0 opacity-0 pointer-events-none"}`} aria-hidden={main !== "sfx"}>
-          <div className="flex flex-wrap justify-center gap-2">
+        {main === "sfx" && (
+          <div className="flex flex-wrap gap-2 mb-6">
             {SFX_SUB.map((sf) => (
-              <Btn key={sf} active={sfx === sf} onClick={() => applySfx(sf)} className="px-3 py-1 text-xs" tabIndex={main === "sfx" ? 0 : -1}>
+              <Btn
+                key={sf}
+                active={sfx === sf}
+                onClick={() => setSfx(sf)}
+                className="px-3 py-1 text-xs"
+              >
                 {LABEL[sf] ?? sf}
               </Btn>
             ))}
           </div>
-        </div>
+        )}
 
-        {/* GRID */}
-        <div className={`mt-10 overflow-hidden transition-all duration-500 ease-out ${fade ? "opacity-0" : "opacity-100"}`}
-             style={{ maxHeight: expanded ? `${filtered.length * 300}px` : `${MAX * 300}px` }}>
-          <div className="flex flex-wrap justify-center gap-5 sm:gap-6">
-            {visible.length === 0 && <div className="w-full text-center text-white/60 text-sm">{t("portfolio.empty")}</div>}
+        {/* GRID animado como Services */}
+        <div className="relative">
+          <AnimatePresence mode="wait" initial={false}>
+            <motion.div
+              key={main + sfx}
+              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
+              variants={navVariants}
+              initial="initial"
+              animate="animate"
+              exit="exit"
+            >
+              {visible.length === 0 && (
+                <div className="col-span-full text-center text-white/60 text-sm">
+                  {t("portfolio.empty")}
+                </div>
+              )}
 
-            {visible.map((it) => {
-              const pid = primaryId(it.services);
-              const bg = it.cover || BG[pid] || bgPyro;
+              {visible.map((it) => {
+                const pid = primaryId(it.services);
+                const bg = it.cover || BG[pid] || bgPyro;
 
-              return (
-                <a key={it.id} href="#"
-                   onClick={(e) => { e.preventDefault(); open(it, 0); }}
-                   className="group relative block overflow-hidden rounded-2xl border border-white/10 focus:outline-none focus-visible:ring-1 focus-visible:ring-white/20 transition-[transform,box-shadow] duration-300 ease-out w-[300px] sm:w-[340px] lg:w-[360px] xl:w-[380px] aspect-[4/3]">
-                  <img src={bg} alt={it.title} loading="lazy" decoding="async"
-                       className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.03] motion-reduce:transition-none" />
-                  <div className="absolute inset-0 bg-black/30 transition-opacity duration-300 ease-out group-hover:opacity-80" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent" />
-
-                  {/* badge */}
-                  <div className="absolute left-3 top-3 inline-flex items-center gap-1 rounded-xl border border-white/10 bg-black/50 px-2 py-1 text-xs text-white/80 backdrop-blur">
-                    <TagIcon tag={it.tag} />
-                    <span>{tagLabel(it.tag)}</span>
-                  </div>
-
-                  <div className="relative z-10 flex h-full items-end p-5 sm:p-6">
-                    <div className="w-full">
-                      <div className="text-lg sm:text-xl font-medium text-white drop-shadow-[0_2px_6px_rgba(0,0,0,0.9)]">{it.title}</div>
-                      <div className="text-[12px] text-white/70 drop-shadow-[0_1px_3px_rgba(0,0,0,0.6)]">
-                        {Array.isArray(it.services) ? it.services.map(serviceLabel).join(" · ") : serviceLabel(it.services)}
-                      </div>
-                      <div className="mt-1 h-[2px] w-12 bg-red-500" />
-                      <div className="mt-2 inline-flex items-center gap-1.5 text-sm text-white/90">
-                        <span className="relative">
-                          {t("portfolio.preview")}
-                          <span className="absolute left-0 -bottom-0.5 h-px w-0 bg-white transition-all duration-300 ease-out group-hover:w-full" />
+                return (
+                  <motion.button
+                    key={it.id}
+                    type="button"
+                    onClick={() => open(it, 0)}
+                    className="group relative block overflow-hidden rounded-xl focus:outline-none transition-transform duration-300 ease-out w-full aspect-[4/3] text-left"
+                    whileTap={{ scale: prefersReduced() ? 1 : 0.985 }}
+                  >
+                    <img
+                      src={bg}
+                      alt={it.title}
+                      loading="lazy"
+                      decoding="async"
+                      className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.05]"
+                    />
+                    <div className="absolute inset-0 bg-black/40 group-hover:bg-black/60 transition-colors duration-300" />
+                    <div className="relative z-10 flex h-full items-end p-5">
+                      <div>
+                        <h3 className="text-lg sm:text-xl text-white">{it.title}</h3>
+                        <span className="block mt-1 h-[1px] w-10 bg-red-500" />
+                        <p className="mt-2 text-sm text-white/70">
+                          {Array.isArray(it.services)
+                            ? it.services.map(serviceLabel).join(" · ")
+                            : serviceLabel(it.services)}
+                        </p>
+                        <span className="mt-3 inline-flex items-center gap-1.5 text-sm text-white/90">
+                          <span className="relative">
+                            {t("portfolio.preview")}
+                            <span className="absolute left-0 -bottom-0.5 h-px w-0 bg-white transition-all duration-300 ease-out group-hover:w-full" />
+                          </span>
+                          <ChevronRight className="size-4 shrink-0 transition-transform duration-300 ease-out group-hover:translate-x-0.5" />
                         </span>
-                        <ChevronRight className="size-4 transition-transform duration-300 ease-out group-hover:translate-x-0.5" />
                       </div>
                     </div>
-                  </div>
-                </a>
-              );
-            })}
-          </div>
+                  </motion.button>
+                );
+              })}
+            </motion.div>
+          </AnimatePresence>
         </div>
 
         {/* Ver todos */}
         {showSeeAll && (
           <div className="mt-8 flex justify-center">
-            <Btn onClick={() => setExpanded(true)} className="px-4 py-2 text-sm border-white/15 bg-white/10 backdrop-blur hover:bg-white/15">
+            <Btn
+              onClick={() => setExpanded(true)}
+              className="px-4 py-2 text-sm border-white/15 bg-white/10 backdrop-blur hover:border-white/20 hover:bg-white/15 hover:text-white"
+            >
               {t("portfolio.seeAll")}
             </Btn>
+
           </div>
         )}
       </div>
 
-      {/* MODAL */}
-      {project && createPortal(
-        <div className="fixed inset-0 z-[100000] bg-black/85 animate-[fadeIn_120ms_ease-out]" onClick={close}>
-          <div className="group/modal relative mx-auto my-0 flex min-h-screen max-w-6xl items-center justify-center px-4 animate-[scaleIn_140ms_ease-out]"
-               onClick={(e) => e.stopPropagation()}>
-            <div className="relative w-full">
-              <div className="relative aspect-video overflow-hidden rounded-2xl bg-black">
-                <div key={idx} className="h-full w-full">
-                  {media?.type === "image" ? (
-                    <img src={media.src} alt={media?.alt || ""} className="h-full w-full object-contain" />
-                  ) : (
-                    <video src={media?.src} poster={media?.poster} className="h-full w-full object-contain" controls autoPlay muted playsInline />
-                     )}
+      {/* MODAL — minimal, botões iguais aos filtros */}
+      {project &&
+        createPortal(
+          <motion.div
+            role="dialog"
+            aria-modal="true"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={prefersReduced() ? { duration: 0 } : { duration: 0.18 }}
+            className="fixed inset-0 z-[100000] bg-black/85"
+            onClick={close}
+          >
+            <div
+              className="relative mx-auto flex min-h-screen w-full max-w-5xl items-center justify-center px-4"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <motion.div
+                initial={prefersReduced() ? {} : { opacity: 0.98, scale: 0.995 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0.98, scale: 0.995 }}
+                transition={
+                  prefersReduced()
+                    ? { duration: 0 }
+                    : { duration: 0.18, ease: [0.22, 1, 0.36, 1] }
+                }
+                className="relative w-full overflow-hidden rounded-2xl bg-black/80"
+              >
+                {/* MEDIA */}
+                <div className="relative aspect-video">
+                  <AnimatePresence mode="wait" initial={false}>
+                    <motion.div
+                      key={idx}
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      transition={prefersReduced() ? { duration: 0 } : { duration: 0.18 }}
+                      className="absolute inset-0"
+                    >
+                      {media?.type === "image" ? (
+                        <img
+                          src={media.src}
+                          alt={media?.alt || project?.title || ""}
+                          className="h-full w-full object-contain"
+                        />
+                      ) : (
+                        <video
+                          src={media?.src}
+                          poster={media?.poster}
+                          className="h-full w-full object-contain"
+                          controls
+                          autoPlay
+                          muted
+                          playsInline
+                        />
+                      )}
+                    </motion.div>
+                  </AnimatePresence>
+
+                  {/* SETAS com estilo dos filtros */}
+                  {(project.media?.length || 0) > 1 && (
+                    <>
+                      <button
+                        type="button"
+                        onClick={prev}
+                        aria-label={t("portfolio.modal.prev")}
+                        className="absolute left-3 top-1/2 -translate-y-1/2 z-10 inline-flex items-center justify-center rounded-xl border border-white/10 bg-white/5 px-2 py-2 text-white/80 hover:border-white/20 hover:bg-white/10 focus:outline-none"
+                      >
+                        <ChevronLeft className="size-5" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={next}
+                        aria-label={t("portfolio.modal.next")}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 z-10 inline-flex items-center justify-center rounded-xl border border-white/10 bg-white/5 px-2 py-2 text-white/80 hover:border-white/20 hover:bg-white/10 focus:outline-none"
+                      >
+                        <ChevronRight className="size-5" />
+                      </button>
+                    </>
+                  )}
+
+                  {/* DOTS */}
+                  {(project.media?.length || 0) > 1 && (
+                    <div className="absolute inset-x-0 bottom-3 z-10 flex items-center justify-center gap-2">
+                      {project.media.map((_, i) => (
+                        <button
+                          key={i}
+                          type="button"
+                          onClick={() => setIdx(i)}
+                          aria-label={t("portfolio.modal.goto", { n: i + 1 })}
+                          className={`h-1.5 rounded-full transition-all ${i === idx
+                              ? "w-6 bg-white"
+                              : "w-2 bg-white/40 hover:bg-white/70"
+                            }`}
+                        />
+                      ))}
+                    </div>
+                  )}
+
+                  {/* CLOSE com estilo dos filtros */}
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      close();
+                    }}
+                    aria-label={t("portfolio.modal.close")}
+                    className="absolute right-3 top-3 z-20 inline-flex items-center justify-center rounded-xl border border-white/10 bg-white/5 px-2 py-2 text-white/80 hover:border-white/20 hover:bg-white/10 focus:outline-none"
+                  >
+                    <XIcon className="size-4" />
+                  </button>
                 </div>
 
-                {(project.media?.length || 0) > 1 && (
-                  <>
-                    <button onClick={prev} aria-label={t("portfolio.modal.prev")} className="absolute left-0 top-0 h-full w-1/5 md:w-1/4 focus:outline-none" />
-                    <button onClick={next} aria-label={t("portfolio.modal.next")} className="absolute right-0 top-0 h-full w-1/5 md:w-1/4 focus:outline-none" />
-                    <button aria-hidden className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 rounded-md bg-black/40 p-2 opacity-0 transition-opacity duration-150 group-hover/modal:opacity-100">
-                      <ChevronLeft className="size-5 text-white" />
-                    </button>
-                    <button aria-hidden className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 rounded-md bg-black/40 p-2 opacity-0 transition-opacity duration-150 group-hover/modal:opacity-100">
-                      <ChevronRight className="size-5 text-white" />
-                    </button>
-                  </>
-                )}
-
-                <button onClick={close} aria-label={t("portfolio.modal.close")} className="absolute right-3 top-3 rounded-md bg-black/45 p-2 text-white/90 transition hover:bg-black/60 focus:outline-none">
-                  <XIcon className="size-5" />
-                </button>
-
-                {(project.media?.length || 0) > 1 && (
-                  <div className="absolute inset-x-0 bottom-3 flex items-center justify-center gap-2">
-                    {project.media.map((_, i) => (
-                      <button key={i} onClick={() => setIdx(i)} aria-label={t("portfolio.modal.goto", { n: i + 1 })}
-                              className={`h-1.5 rounded-full transition-all ${i === idx ? "w-6 bg-red-500" : "w-2 bg-white/50 hover:bg-white/80"}`} />
-                    ))}
-                  </div>
-                )}
-              </div>
+                {/* TÍTULO + linha vermelha + DESCRIÇÃO */}
+                <div className="px-5 sm:px-6 py-4">
+                  <h3 className="mt-4 text-lg sm:text-xl text-white">{project.title}</h3>
+                  <span className="block mt-1 h-[1px] w-10 bg-red-500" />
+                  {project.description && (
+                    <p className="mt-2 text-sm text-white/70">{project.description}</p>
+                  )}
+                </div>
+              </motion.div>
             </div>
-          </div>
-        </div>,
-        document.body
-      )}
+          </motion.div>,
+          document.body
+        )}
+
+
+
     </section>
   );
 }
