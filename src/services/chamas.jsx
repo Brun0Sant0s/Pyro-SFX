@@ -1,9 +1,9 @@
 import React from "react";
 import { Layers, ShieldCheck, SlidersHorizontal } from "lucide-react";
 
-import img1 from "../assets/services/chamas_1.png";
-import img2 from "../assets/services/chamas_2.png";
-import img3 from "../assets/services/chamas_3.png";
+import img1 from "../assets/services/chamas_1.jpg";
+import img2 from "../assets/services/chamas_3.jpg";
+import img3 from "../assets/services/chamas_4.jpg";
 
 const highlights = [
   { icon: SlidersHorizontal, title: "Vertical & Horizontal", desc: "Colunas de fogo em v\u00e1rias dire\u00e7\u00f5es." },
@@ -44,12 +44,17 @@ export default function Chamas({ meta }) {
           <ul className="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
             {highlights.map(({ icon: Icon, title, desc }) => (
               <li key={title} className="flex flex-col items-start gap-2">
-                <Icon className="h-12 w-12 text-red-500" aria-hidden="true" />
+                <Icon
+                  className="h-12 w-12 text-red-500 mb-4"
+                  strokeWidth={1.25}
+                  aria-hidden="true"
+                />
                 <div className="text-base font-medium">{title}</div>
                 <p className="text-sm text-white/75 leading-relaxed">{desc}</p>
               </li>
             ))}
           </ul>
+
         </section>
       </div>
     </section>

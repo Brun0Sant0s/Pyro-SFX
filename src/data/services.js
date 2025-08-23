@@ -1,5 +1,7 @@
 import imgPyro from "../assets/services_2.png";
 import imgSfx from "../assets/services_3.png";
+import chamas from "../assets/services/chamas_2.jpg";
+import piromusical_1 from "../assets/services/piromusical_1.jpg";
 
 export const services = [
   {
@@ -35,7 +37,7 @@ export const extras = {
       id: "5",
       title: "Espetáculos Piromusicais",
       desc: "Coreografia de pirotecnia sincronizada com música.",
-      image: { src: imgPyro, alt: "Pirotecnia musical" },
+      image: { src: piromusical_1, alt: "Pirotecnia musical" },
       viewId: "espetaculo_piromusical",
     },
     {
@@ -58,7 +60,7 @@ export const extras = {
       id: "8",
       title: "Chamas",
       desc: "Colunas de fogo para impacto visual no palco.",
-      image: { src: imgSfx, alt: "Chamas em palco" },
+      image: { src: chamas, alt: "Chamas em palco" },
       viewId: "chamas",
     },
     {

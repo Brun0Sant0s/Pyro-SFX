@@ -1,9 +1,9 @@
 import React from "react";
 import { Music2, Stars } from "lucide-react";
 
-import img1 from "../assets/services/espetaculo_piromusical_1.png";
-import img2 from "../assets/services/espetaculo_piromusical_2.png";
-import img3 from "../assets/services/espetaculo_piromusical_3.png";
+import piromusical_2 from "../assets/services/piromusical_2.jpg";
+import piromusical_3 from "../assets/services/piromusical_3.jpg";
+import piromusical_4 from "../assets/services/piromusical_4.jpg";
 
 const highlights = [
   { icon: Music2, title: "Sincronizado \u00e0 M\u00fasica", desc: "Precis\u00e3o ao milissegundo." },
@@ -14,7 +14,7 @@ export default function EspetaculoPiromusical({ meta }) {
   const { label, imgMain } = meta;
 
   const description = "Narrativa visual coreografada ao milissegundo com a banda sonora. Escolha de efeitos, ritmos e dinâmicas que elevam a música ao máximo.";
-  const gallery = [img1, img2, img3];
+  const gallery = [piromusical_2, piromusical_3, piromusical_4];
 
   return (
     <section className="relative isolate text-white">
