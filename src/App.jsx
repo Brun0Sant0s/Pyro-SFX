@@ -1,12 +1,15 @@
-import { useEffect, useState } from 'react';
-import Navbar from './components/Navbar';
-import MobileMenu from './components/MobileMenu';
+import { Routes, Route } from "react-router-dom";
+import BackofficeRouter from "./backoffice/BackofficeRouter.jsx";
 
-import Hero from './sections/Hero';
-import About from './sections/About';
-import Services from './sections/Services';
-import Portfolio from './sections/Portfolio';
-import Contacts from './sections/Contacts';
+import Navbar from "./components/Navbar";
+import MobileMenu from "./components/MobileMenu";
+
+import Hero from "./sections/Hero";
+import About from "./sections/About";
+import Services from "./sections/Services";
+import Portfolio from "./sections/Portfolio";
+import Contacts from "./sections/Contacts";
+import { useEffect, useState } from "react";
 
 function SectionDivider() {
   return (
@@ -20,11 +23,12 @@ function SectionDivider() {
   );
 }
 
-export default function App() {
+/** --------- COMPONENTE DO SITE (sem export default) --------- **/
+function Site() {
   const [activeSection, setActiveSection] = useState(null);
   const [menuOpen, setMenuOpen] = useState(false);
 
-  const SECTIONS = ['sobre', 'servicos', 'portfolio', 'contactos'];
+  const SECTIONS = ["sobre", "servicos", "portfolio", "contactos"];
   const NAV_H = 64;
 
   useEffect(() => {
@@ -50,7 +54,7 @@ export default function App() {
         window.innerHeight + window.scrollY >=
         document.documentElement.scrollHeight - NEAR_BOTTOM_OFFSET;
 
-      if (nearBottom) current = 'contactos';
+      if (nearBottom) current = "contactos";
       setActiveSection(current);
     };
 
@@ -66,14 +70,14 @@ export default function App() {
     const mo = new MutationObserver(() => update());
     mo.observe(document.body, { childList: true, subtree: true });
 
-    window.addEventListener('scroll', onScroll, { passive: true });
-    window.addEventListener('resize', onScroll);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
     update();
 
     return () => {
       mo.disconnect();
-      window.removeEventListener('scroll', onScroll);
-      window.removeEventListener('resize', onScroll);
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
     };
   }, []);
 
@@ -84,7 +88,6 @@ export default function App() {
         open={menuOpen}
         onToggleMenu={() => setMenuOpen((v) => !v)}
       />
-
       <MobileMenu
         open={menuOpen}
         onClose={() => setMenuOpen(false)}
@@ -92,6 +95,7 @@ export default function App() {
       />
 
       <Hero />
+
       <div className="mx-auto max-w-7xl px-24">
         <header className="mb-8">
           <h2 className="text-3xl sm:text-4xl tracking-tight text-white">Sobre</h2>
@@ -103,30 +107,41 @@ export default function App() {
       <SectionDivider />
 
       <div className="mx-auto max-w-7xl px-24">
-         <header className="mb-8">
+        <header className="mb-8">
           <h2 className="text-3xl sm:text-4xl tracking-tight text-white">Serviços</h2>
           <span className="block mt-2 h-[1px] w-20 bg-gradient-to-r from-red-500 to-black" />
         </header>
         <Services />
       </div>
+
       <SectionDivider />
 
       <div className="mx-auto max-w-7xl px-24">
-         <header className="mb-8">
+        <header className="mb-8">
           <h2 className="text-3xl sm:text-4xl tracking-tight text-white">Portfólio</h2>
           <span className="block mt-2 h-[1px] w-20 bg-gradient-to-r from-red-500 to-black" />
         </header>
         <Portfolio />
       </div>
+
       <SectionDivider />
 
       <div className="mx-auto max-w-7xl px-24 pb-24">
-         <header className="mb-8">
+        <header className="mb-8">
           <h2 className="text-3xl sm:text-4xl tracking-tight text-white">Contacos</h2>
           <span className="block mt-2 h-[1px] w-20 bg-gradient-to-r from-red-500 to-black" />
         </header>
         <Contacts />
       </div>
     </>
+  );
+}
+
+export default function App() {
+  return (
+    <Routes>
+      <Route path="/backoffice/*" element={<BackofficeRouter />} />
+      <Route path="/*" element={<Site />} />
+    </Routes>
   );
 }

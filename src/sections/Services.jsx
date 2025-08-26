@@ -1,42 +1,22 @@
+// src/sections/Services.jsx
 import React, { useState, useRef, useEffect } from "react";
 import { ArrowRight, ChevronRight, ChevronLeft } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { motion, AnimatePresence } from "framer-motion";
-import { services, extras } from "../data/services";
+import ServiceDetail from "./Services_detail";
+import { getServices, getExtras, getDetail } from "../lib/api";
 
-/* ------- carregamento dinâmico do detalhe (nível 3) ------- */
-const DETAIL_VIEWS = import.meta.glob("../services/*.{jsx,tsx}");
-function loadDetailView({ viewPath, viewId }) {
-  if (viewPath) {
-    const path = viewPath.startsWith("../services/") ? viewPath : `../services/${viewPath}`;
-    return DETAIL_VIEWS[path] || null;
-  }
-  if (viewId) {
-    return DETAIL_VIEWS[`../services/${viewId}.jsx`] || DETAIL_VIEWS[`../services/${viewId}.tsx`] || null;
-  }
-  return null;
-}
-
-/* ------- animações ------- */
+/* animações */
 const prefersReducedMotion = () =>
-  typeof window !== "undefined" &&
-  window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+  typeof window !== "undefined" && window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
 
 const transitionVariants = {
-  initial: (dir = 1) =>
-    prefersReducedMotion() ? { opacity: 0 } : { opacity: 0, x: dir * 20 },
-  animate: {
-    opacity: 1,
-    x: 0,
-    transition: prefersReducedMotion() ? { duration: 0 } : { duration: 0.26, ease: [0.22, 1, 0.36, 1] },
-  },
-  exit: (dir = 1) =>
-    prefersReducedMotion()
-      ? { opacity: 0 }
-      : { opacity: 0, x: dir * -20, transition: { duration: 0.2, ease: [0.4, 0, 1, 1] } },
+  initial: (dir = 1) => (prefersReducedMotion() ? { opacity: 0 } : { opacity: 0, x: dir * 20 }),
+  animate: { opacity: 1, x: 0, transition: prefersReducedMotion() ? { duration: 0 } : { duration: 0.26, ease: [0.22, 1, 0.36, 1] } },
+  exit: (dir = 1) => (prefersReducedMotion() ? { opacity: 0 } : { opacity: 0, x: dir * -20, transition: { duration: 0.2, ease: [0.4, 0, 1, 1] } }),
 };
 
-/* ------- UI ------- */
+/* UI */
 const Breadcrumb = ({ items = [] }) => {
   const visible = items.filter(Boolean);
   if (!visible.length) return null;
@@ -45,9 +25,7 @@ const Breadcrumb = ({ items = [] }) => {
       {visible.map((label, i) => (
         <React.Fragment key={`${label}-${i}`}>
           <span className={i === visible.length - 1 ? "text-white" : "text-white/70"}>{label}</span>
-          {i < visible.length - 1 && (
-            <ChevronRight className="h-3.5 w-3.5 text-white/60 opacity-60" aria-hidden="true" />
-          )}
+          {i < visible.length - 1 && <ChevronRight className="h-3.5 w-3.5 text-white/60 opacity-60" aria-hidden="true" />}
         </React.Fragment>
       ))}
     </nav>
@@ -61,7 +39,6 @@ const BackButton = ({ onClick }) => (
     className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 pl-2.5 pr-3 py-1.5 text-sm text-white/70 
                hover:border-white/20 hover:bg-white/10 hover:text-white focus:outline-none focus-visible:ring-1 focus-visible:ring-white/20"
     aria-label="Voltar"
-    title="Voltar"
   >
     <ChevronLeft className="w-4 h-4" />
   </button>
@@ -75,11 +52,12 @@ const GridCard = ({ title, desc, image, cta, onClick }) => (
     whileTap={{ scale: prefersReducedMotion() ? 1 : 0.985 }}
   >
     <img
-      src={image.src}
-      alt={image.alt}
+      src={image?.src || "/img/placeholder-service.jpg"}
+      alt={image?.alt || ""}
       loading="lazy"
       decoding="async"
       className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.05]"
+      onError={(e) => { e.currentTarget.src = "/img/placeholder-service.jpg"; }}
     />
     <div className="absolute inset-0 bg-black/40 group-hover:bg-black/60 transition-colors duration-300" />
     <div className="relative z-10 flex h-full items-end p-5">
@@ -105,61 +83,104 @@ const GridCard = ({ title, desc, image, cta, onClick }) => (
 export default function Services() {
   const { t } = useTranslation();
 
-  // seleção por níveis
-  const [level1ServiceId, setLevel1ServiceId] = useState(null); // nível 1: serviço primário
-  const [level2ExtraId, setLevel2ExtraId] = useState(null);     // nível 2: serviço secundário (extra)
-  const [Level3DetailView, setLevel3DetailView] = useState(null); // nível 3: componente de detalhe
-  const [detailMeta, setDetailMeta] = useState(null);             // dados passados ao detalhe (label + imgMain)
+  // estado
+  const [services, setServices] = useState([]);               // nível 0
+  const [extrasByService, setExtrasByService] = useState({}); // cache nível 1
+  const [level1Service, setLevel1Service] = useState(null);
+  const [level2Extra, setLevel2Extra] = useState(null);
+  const [detailData, setDetailData] = useState(null);         // nível 3
+  const [loading, setLoading] = useState({ svc: false, ex: false, det: false });
+  const [error, setError] = useState(null);
 
-  // cálculo do nível atual (para animações)
-  const currentLevel = Level3DetailView ? 3 : level1ServiceId ? (level2ExtraId ? 2 : 1) : 0;
+  // animação
+  const currentLevel = detailData ? 3 : level1Service ? (level2Extra ? 2 : 1) : 0;
   const prevLevelRef = useRef(currentLevel);
   const direction = currentLevel > prevLevelRef.current ? 1 : -1;
   useEffect(() => { prevLevelRef.current = currentLevel; }, [currentLevel]);
 
-  // títulos para breadcrumb
-  const level1Title = level1ServiceId ? services.find(s => s.id === level1ServiceId)?.title : null;
-  const level2Title = level1ServiceId && level2ExtraId
-    ? extras[level1ServiceId]?.find(e => e.id === level2ExtraId)?.title
-    : null;
+  // carregar serviços
+  useEffect(() => {
+    setLoading(s => ({ ...s, svc: true }));
+    setError(null);
+    getServices()
+      .then(list => {
+        const normalized = (Array.isArray(list) ? list : []).map(s => ({
+          id: s.id,
+          title: s.title,
+          imageUrl: s.imageUrl ?? s.image_url ?? "",
+        }));
+        console.log("[Services] normalizado =", normalized);
+        setServices(normalized);
+      })
+      .catch(err => {
+        console.error("getServices falhou:", err);
+        setError("Falha a obter serviços");
+        setServices([]);
+      })
+      .finally(() => setLoading(s => ({ ...s, svc: false })));
+  }, []);
 
-  // abrir detalhe (nível 3)
-  async function mountDetail(extra) {
-    const loader = loadDetailView(extra);
-    if (!loader) return setLevel3DetailView(null);
-    try {
-      const mod = await loader();
-      setLevel3DetailView(() => (mod?.default ? mod.default : null));
-    } catch {
-      setLevel3DetailView(null);
+
+  const level1Title = level1Service?.title ?? null;
+  const level2Title = level2Extra?.title ?? null;
+  const extras = level1Service ? (extrasByService[level1Service.id] ?? []) : [];
+
+  async function onClickLevel1(service) {
+    setLevel1Service(service);
+    setLevel2Extra(null);
+    setDetailData(null);
+
+    if (!extrasByService[service.id]) {
+      setLoading(s => ({ ...s, ex: true }));
+      try {
+        const list = await getExtras(service.id, "pt");
+        // normalizar extras
+        const normalized = (Array.isArray(list) ? list : []).map(e => ({
+          id: e.id,
+          title: e.title,
+          imageUrl: e.imageUrl ?? e.image_url ?? "",
+          viewId: e.viewId ?? e.view_id,
+        }));
+        setExtrasByService(prev => ({ ...prev, [service.id]: normalized }));
+      } catch (e) {
+        console.error("getExtras falhou:", e);
+        setExtrasByService(prev => ({ ...prev, [service.id]: [] }));
+      } finally {
+        setLoading(s => ({ ...s, ex: false }));
+      }
     }
   }
 
-  // cliques por nível
-  function onClickLevel1(service) {
-    setLevel1ServiceId(service.id);
-    setLevel2ExtraId(null);
-    setLevel3DetailView(null);
-    setDetailMeta(null);
+  async function onClickLevel2(extra) {
+    setLevel2Extra(extra);
+    setDetailData(null);
+
+    setLoading(s => ({ ...s, det: true }));
+    try {
+      const d = await getDetail(extra.viewId, "pt"); // { description, galleryUrls, highlights }
+      setDetailData({
+        label: extra.title,
+        imgMain: extra.imageUrl,
+        description: d.description,
+        gallery: d.galleryUrls,
+        highlights: d.highlights
+      });
+    } catch (e) {
+      console.error("Falha a obter detalhe", e);
+      setDetailData(null);
+    } finally {
+      setLoading(s => ({ ...s, det: false }));
+    }
   }
 
-  function onClickLevel2(extra) {
-    setLevel2ExtraId(extra.id);
-    setLevel3DetailView(null);
-    setDetailMeta({ label: extra.title, imgMain: extra.image?.src }); // passamos a imagem e o título do card clicado
-    if (extra.viewPath || extra.viewId) mountDetail(extra);
-  }
-
-  // back
   function goBack() {
     if (currentLevel === 3) {
-      setLevel3DetailView(null);
-      if (level2ExtraId) setLevel2ExtraId(null);
-      else if (!extras[level1ServiceId]?.length) setLevel1ServiceId(null);
-      setDetailMeta(null);
-    } else if (currentLevel === 2 || currentLevel === 1) {
-      setLevel1ServiceId(null);
-      setDetailMeta(null);
+      setDetailData(null);
+      setLevel2Extra(null);
+    } else if (currentLevel === 2) {
+      setLevel2Extra(null);
+    } else if (currentLevel === 1) {
+      setLevel1Service(null);
     }
   }
 
@@ -167,7 +188,7 @@ export default function Services() {
     <section id="servicos" className="relative isolate text-white scroll-mt-16">
       <div className="mx-auto max-w-7xl">
         <div className="mx-auto max-w-6xl">
-         
+
           {/* Breadcrumb + voltar */}
           <div className="mb-6">
             <div className="inline-flex items-center gap-4">
@@ -178,67 +199,78 @@ export default function Services() {
 
           {/* Conteúdo por nível */}
           <div className="relative">
+            {error && <p className="text-red-400 mb-4">{error}</p>}
+
             <AnimatePresence mode="wait" initial={false} custom={direction}>
-              {/* Nível 0: lista de serviços (primário) */}
+              {/* Nível 0 */}
               {currentLevel === 0 && (
                 <motion.div
                   key="level-1-list"
                   className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
                   variants={transitionVariants}
-                  initial="initial"
-                  animate="animate"
-                  exit="exit"
-                  custom={direction}
+                  initial="initial" animate="animate" exit="exit" custom={direction}
                 >
-                  {services.map((service) => (
-                    <GridCard
-                      key={service.id}
-                      {...service}
-                      cta={t("services.cta")}
-                      onClick={() => onClickLevel1(service)}
-                    />
-                  ))}
+                  {loading.svc && !services.length ? (
+                    <div className="text-white/70">A carregar…</div>
+                  ) : services.length ? (
+                    services.map((s) => (
+                      <GridCard
+                        key={s.id}
+                        title={s.title}
+                        desc=""
+                        image={{ src: s.imageUrl, alt: s.title }}
+                        cta={t("services.cta")}
+                        onClick={() => onClickLevel1(s)}
+                      />
+                    ))
+                  ) : (
+                    <div className="text-white/70">Sem serviços. (count={services.length})</div>
+                  )}
+
                 </motion.div>
               )}
 
-              {/* Nível 1: extras (serviços secundários) */}
-              {currentLevel === 1 && level1ServiceId && (
+              {/* Nível 1 */}
+              {currentLevel === 1 && level1Service && (
                 <motion.div
                   key="level-2-list"
                   className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
                   variants={transitionVariants}
-                  initial="initial"
-                  animate="animate"
-                  exit="exit"
-                  custom={direction}
+                  initial="initial" animate="animate" exit="exit" custom={direction}
                 >
-                  {(extras[level1ServiceId] ?? []).map((extra) => (
-                    <GridCard
-                      key={extra.id}
-                      {...extra}
-                      cta={t("services.cta")}
-                      onClick={() => onClickLevel2(extra)}
-                    />
-                  ))}
+                  {loading.ex && !extras.length ? (
+                    <div className="text-white/70">A carregar…</div>
+                  ) : extras.length ? (
+                    extras.map((e) => (
+                      <GridCard
+                        key={e.id}
+                        title={e.title}
+                        desc=""
+                        image={{ src: e.imageUrl, alt: e.title }}
+                        cta={t("services.cta")}
+                        onClick={() => onClickLevel2(e)}
+                      />
+                    ))
+                  ) : (
+                    <div className="text-white/70">Sem extras para este serviço.</div>
+                  )}
                 </motion.div>
               )}
 
-              {/* Nível 2: detalhe do serviço (componente dinâmico) */}
-              {currentLevel === 3 && Level3DetailView && (
+              {/* Nível 3 */}
+              {currentLevel === 3 && detailData && (
                 <motion.div
                   key="level-3-detail"
                   className="max-w-6xl mx-auto text-left"
                   variants={transitionVariants}
-                  initial="initial"
-                  animate="animate"
-                  exit="exit"
-                  custom={direction}
+                  initial="initial" animate="animate" exit="exit" custom={direction}
                 >
-                  <Level3DetailView meta={detailMeta} />
+                  {loading.det ? <div className="text-white/70">A carregar…</div> : <ServiceDetail data={detailData} />}
                 </motion.div>
               )}
             </AnimatePresence>
           </div>
+
         </div>
       </div>
     </section>
